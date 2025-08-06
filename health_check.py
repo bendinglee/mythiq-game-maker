@@ -556,7 +556,7 @@ def get_health_status():
 def get_quick_health():
     """Get quick health status"""
     return health_checker.get_quick_status()
-
+    
 def record_generation_metrics(generation_time, success=True):
     """Record game generation metrics"""
     health_checker.record_game_generation(generation_time, success)
@@ -566,4 +566,3 @@ print(f"  Service monitoring: Active")
 print(f"  Performance tracking: Enabled")
 print(f"  Component health checks: {len(health_checker.health_thresholds)} thresholds")
 print("✅ Ready to monitor Mythiq Game Maker health!")
-
