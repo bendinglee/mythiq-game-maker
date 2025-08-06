@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 import os
 import json
-from datetime import import datetime
+from datetime import datetime
 import requests
 import random
 
