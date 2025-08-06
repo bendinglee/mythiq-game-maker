@@ -788,4 +788,3 @@ print(f"  {len(GameTemplateManager().css_templates)} CSS theme templates")
 print(f"  {len(GameTemplateManager().js_snippets)} JavaScript code snippets")
 print(f"  {len(GameTemplateManager().html_components)} HTML components")
 print("✅ Ready to generate complete game templates!")
-
