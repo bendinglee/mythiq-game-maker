@@ -1,45 +1,61 @@
 """
-Enhanced Multi-Template Game Generator for Mythiq AI Platform
-Supports: Space Shooter, Platformer, Puzzle, Racing games
-Maintains professional quality across all templates
+Fixed Mythiq Game Maker with AI-Powered Template Customization
+- Proper Railway deployment configuration
+- AI-powered prompt analysis and template customization
+- Professional graphics maintained across all game types
+- Unique game generation while preserving quality
 """
 
+import os
+import json
+import random
+import re
+from datetime import datetime
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import random
-import json
-from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
 
-class MultiTemplateGameGenerator:
+class AIGameCustomizer:
     def __init__(self):
         self.templates = {
             'space_shooter': {
                 'name': 'Space Shooter',
-                'features': ['Professional Graphics', 'Complete Shooting', 'Power-up System', 'Advanced Scoring', 'Particle Effects', 'Mobile Optimized'],
-                'keywords': ['space', 'shooter', 'shoot', 'spaceship', 'laser', 'alien', 'enemy', 'asteroid']
+                'keywords': ['space', 'shooter', 'shoot', 'spaceship', 'laser', 'alien', 'enemy', 'asteroid', 'galaxy', 'cosmic'],
+                'themes': ['cosmic', 'alien_invasion', 'space_patrol', 'asteroid_field', 'galactic_war'],
+                'colors': ['#00ffff', '#ff6b6b', '#9b59b6', '#f39c12', '#e74c3c'],
+                'enemies': ['alien', 'asteroid', 'drone', 'mothership', 'fighter'],
+                'powerups': ['laser_upgrade', 'shield', 'rapid_fire', 'multi_shot', 'health']
             },
             'platformer': {
                 'name': 'Platformer',
-                'features': ['Professional Graphics', 'Jump Mechanics', 'Platform Physics', 'Collectibles', 'Enemy AI', 'Mobile Optimized'],
-                'keywords': ['platform', 'jump', 'mario', 'side-scroll', 'coin', 'level', 'obstacle']
+                'keywords': ['platform', 'jump', 'mario', 'side-scroll', 'coin', 'level', 'obstacle', 'adventure'],
+                'themes': ['forest', 'castle', 'underground', 'sky', 'desert'],
+                'colors': ['#FFD700', '#FF6347', '#32CD32', '#87CEEB', '#DDA0DD'],
+                'enemies': ['goomba', 'spike', 'guard', 'monster', 'robot'],
+                'powerups': ['coin', 'gem', 'key', 'star', 'mushroom']
             },
             'puzzle': {
                 'name': 'Puzzle',
-                'features': ['Professional Graphics', 'Block Mechanics', 'Line Clearing', 'Scoring System', 'Level Progression', 'Mobile Optimized'],
-                'keywords': ['puzzle', 'tetris', 'block', 'match', 'grid', 'clear', 'rotate']
+                'keywords': ['puzzle', 'tetris', 'block', 'match', 'grid', 'clear', 'rotate', 'logic'],
+                'themes': ['classic', 'neon', 'crystal', 'digital', 'retro'],
+                'colors': ['#9b59b6', '#3498db', '#e74c3c', '#f39c12', '#2ecc71'],
+                'pieces': ['I_piece', 'O_piece', 'T_piece', 'L_piece', 'J_piece', 'S_piece', 'Z_piece'],
+                'effects': ['line_clear', 'combo', 'cascade', 'flash', 'particle']
             },
             'racing': {
                 'name': 'Racing',
-                'features': ['Professional Graphics', 'Vehicle Physics', 'Track System', 'Speed Mechanics', 'Lap Timing', 'Mobile Optimized'],
-                'keywords': ['race', 'racing', 'car', 'speed', 'track', 'lap', 'vehicle', 'drive']
+                'keywords': ['race', 'racing', 'car', 'speed', 'track', 'lap', 'vehicle', 'drive', 'formula'],
+                'themes': ['city', 'desert', 'mountain', 'highway', 'circuit'],
+                'colors': ['#e74c3c', '#3498db', '#f39c12', '#2ecc71', '#9b59b6'],
+                'vehicles': ['sports_car', 'formula', 'truck', 'motorcycle', 'hover_car'],
+                'obstacles': ['oil_spill', 'barrier', 'other_car', 'debris', 'pothole']
             }
         }
     
     def analyze_prompt(self, description):
-        """Analyze the game description to determine the best template"""
+        """AI-powered prompt analysis to determine template and customizations"""
         description_lower = description.lower()
         
         # Score each template based on keyword matches
@@ -51,26 +67,132 @@ class MultiTemplateGameGenerator:
                     score += 1
             scores[template_id] = score
         
-        # Return the template with the highest score, default to space_shooter
+        # Get the best template
         best_template = max(scores, key=scores.get)
         if scores[best_template] == 0:
             best_template = 'space_shooter'  # Default fallback
         
         return best_template, self.templates[best_template]
     
-    def get_enhanced_space_shooter_template(self, description):
-        """Generate enhanced space shooter game"""
+    def extract_customizations(self, description, template_info):
+        """Extract specific customizations from the prompt"""
+        description_lower = description.lower()
+        customizations = {}
+        
+        # Extract theme preferences
+        if 'themes' in template_info:
+            for theme in template_info['themes']:
+                if theme in description_lower:
+                    customizations['theme'] = theme
+                    break
+            if 'theme' not in customizations:
+                customizations['theme'] = random.choice(template_info['themes'])
+        
+        # Extract color preferences
+        color_words = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan']
+        color_map = {
+            'red': '#e74c3c', 'blue': '#3498db', 'green': '#2ecc71',
+            'yellow': '#f39c12', 'purple': '#9b59b6', 'orange': '#e67e22',
+            'pink': '#e91e63', 'cyan': '#00ffff'
+        }
+        
+        for color_word in color_words:
+            if color_word in description_lower:
+                customizations['primary_color'] = color_map[color_word]
+                break
+        
+        if 'primary_color' not in customizations:
+            customizations['primary_color'] = random.choice(template_info['colors'])
+        
+        # Extract difficulty preferences
+        if any(word in description_lower for word in ['easy', 'simple', 'beginner']):
+            customizations['difficulty'] = 'easy'
+        elif any(word in description_lower for word in ['hard', 'difficult', 'challenging', 'expert']):
+            customizations['difficulty'] = 'hard'
+        else:
+            customizations['difficulty'] = 'medium'
+        
+        # Extract specific game elements mentioned
+        customizations['elements'] = []
+        if 'enemies' in template_info:
+            for enemy in template_info['enemies']:
+                if enemy in description_lower:
+                    customizations['elements'].append(enemy)
+        
+        if 'powerups' in template_info:
+            for powerup in template_info['powerups']:
+                if powerup in description_lower:
+                    customizations['elements'].append(powerup)
+        
+        return customizations
+    
+    def customize_template(self, template_id, template_info, customizations, description):
+        """Generate customized game based on template and AI analysis"""
+        
+        if template_id == 'space_shooter':
+            return self.generate_custom_space_shooter(customizations, description)
+        elif template_id == 'platformer':
+            return self.generate_custom_platformer(customizations, description)
+        elif template_id == 'puzzle':
+            return self.generate_custom_puzzle(customizations, description)
+        elif template_id == 'racing':
+            return self.generate_custom_racing(customizations, description)
+        else:
+            return self.generate_custom_space_shooter(customizations, description)
+    
+    def generate_custom_space_shooter(self, customizations, description):
+        """Generate customized space shooter with AI-driven variations"""
+        
+        theme = customizations.get('theme', 'cosmic')
+        primary_color = customizations.get('primary_color', '#00ffff')
+        difficulty = customizations.get('difficulty', 'medium')
+        
+        # Customize based on theme
+        if theme == 'alien_invasion':
+            title = "👽 Alien Invasion Defense"
+            background = "linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)"
+            enemy_color = "#ff4757"
+        elif theme == 'space_patrol':
+            title = "🚀 Space Patrol Mission"
+            background = "linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%)"
+            enemy_color = "#e74c3c"
+        elif theme == 'asteroid_field':
+            title = "☄️ Asteroid Field Navigator"
+            background = "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"
+            enemy_color = "#95a5a6"
+        else:
+            title = "🌌 Cosmic Adventure"
+            background = "linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%)"
+            enemy_color = "#ff6b6b"
+        
+        # Adjust difficulty
+        if difficulty == 'easy':
+            enemy_spawn_rate = "3000 + Math.random() * 4000"
+            player_health = "150"
+            enemy_speed = "4s"
+        elif difficulty == 'hard':
+            enemy_spawn_rate = "800 + Math.random() * 1200"
+            player_health = "75"
+            enemy_speed = "2s"
+        else:
+            enemy_spawn_rate = "1500 + Math.random() * 2500"
+            player_health = "100"
+            enemy_speed = "3s"
+        
+        # Generate unique game title based on description
+        game_title = self.generate_unique_title(description, "Space Shooter")
+        
         return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Space Shooter</title>
+    <title>{game_title}</title>
     <style>
         body {{
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            background: {background};
             font-family: 'Arial', sans-serif;
             overflow: hidden;
             color: white;
@@ -90,14 +212,14 @@ class MultiTemplateGameGenerator:
             align-items: center;
             padding: 15px 30px;
             background: rgba(0, 0, 0, 0.8);
-            border-bottom: 2px solid #00ffff;
+            border-bottom: 2px solid {primary_color};
         }}
         
         .game-title {{
             font-size: 24px;
             font-weight: bold;
-            color: #00ffff;
-            text-shadow: 0 0 10px #00ffff;
+            color: {primary_color};
+            text-shadow: 0 0 10px {primary_color};
         }}
         
         .game-stats {{
@@ -131,10 +253,10 @@ class MultiTemplateGameGenerator:
             transform: translateX(-50%);
             width: 60px;
             height: 60px;
-            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            background: linear-gradient(45deg, {primary_color}, {primary_color}aa);
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
             border: 2px solid #fff;
-            box-shadow: 0 0 20px #ff6b6b;
+            box-shadow: 0 0 20px {primary_color};
             transition: all 0.1s ease;
         }}
         
@@ -142,20 +264,20 @@ class MultiTemplateGameGenerator:
             position: absolute;
             width: 40px;
             height: 40px;
-            background: linear-gradient(45deg, #ff4757, #ff6b7a);
+            background: linear-gradient(45deg, {enemy_color}, {enemy_color}aa);
             clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
             border: 1px solid #fff;
-            box-shadow: 0 0 15px #ff4757;
-            animation: enemyMove 3s linear infinite;
+            box-shadow: 0 0 15px {enemy_color};
+            animation: enemyMove {enemy_speed} linear infinite;
         }}
         
         .laser {{
             position: absolute;
             width: 4px;
             height: 20px;
-            background: linear-gradient(to top, #00ffff, #ffffff);
+            background: linear-gradient(to top, {primary_color}, #ffffff);
             border-radius: 2px;
-            box-shadow: 0 0 10px #00ffff;
+            box-shadow: 0 0 10px {primary_color};
             animation: laserMove 1s linear infinite;
         }}
         
@@ -174,7 +296,7 @@ class MultiTemplateGameGenerator:
             position: absolute;
             width: 60px;
             height: 60px;
-            background: radial-gradient(circle, #ff6b6b 0%, #ff8e8e 50%, transparent 100%);
+            background: radial-gradient(circle, {primary_color} 0%, {primary_color}aa 50%, transparent 100%);
             border-radius: 50%;
             animation: explode 0.5s ease-out forwards;
         }}
@@ -201,8 +323,8 @@ class MultiTemplateGameGenerator:
         .control-btn {{
             padding: 12px 24px;
             background: rgba(0, 255, 255, 0.2);
-            border: 2px solid #00ffff;
-            color: #00ffff;
+            border: 2px solid {primary_color};
+            color: {primary_color};
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
@@ -211,7 +333,7 @@ class MultiTemplateGameGenerator:
         
         .control-btn:hover {{
             background: rgba(0, 255, 255, 0.4);
-            box-shadow: 0 0 20px #00ffff;
+            box-shadow: 0 0 20px {primary_color};
         }}
         
         @keyframes enemyMove {{
@@ -273,7 +395,7 @@ class MultiTemplateGameGenerator:
 <body>
     <div class="game-container">
         <div class="game-header">
-            <div class="game-title">🚀 Enhanced Space Shooter</div>
+            <div class="game-title">{title}</div>
             <div class="game-stats">
                 <div class="stat">
                     <span>Score:</span>
@@ -285,7 +407,7 @@ class MultiTemplateGameGenerator:
                 </div>
                 <div class="stat">
                     <span>Health:</span>
-                    <span class="stat-value" id="health">100</span>
+                    <span class="stat-value" id="health">{player_health}</span>
                 </div>
             </div>
         </div>
@@ -302,18 +424,20 @@ class MultiTemplateGameGenerator:
     </div>
 
     <script>
-        // Game state
+        // Game state with customized parameters
         let gameState = {{
             score: 0,
             level: 1,
-            health: 100,
+            health: {player_health},
             isPlaying: false,
             isPaused: false,
             player: {{ x: 50, y: 50 }},
             enemies: [],
             lasers: [],
             powerups: [],
-            stars: []
+            stars: [],
+            difficulty: '{difficulty}',
+            theme: '{theme}'
         }};
 
         // Game elements
@@ -323,7 +447,7 @@ class MultiTemplateGameGenerator:
         const levelElement = document.getElementById('level');
         const healthElement = document.getElementById('health');
 
-        // Initialize game
+        // Initialize game with customizations
         function initGame() {{
             createStars();
             updateUI();
@@ -367,14 +491,16 @@ class MultiTemplateGameGenerator:
             gameState = {{
                 score: 0,
                 level: 1,
-                health: 100,
+                health: {player_health},
                 isPlaying: false,
                 isPaused: false,
                 player: {{ x: 50, y: 50 }},
                 enemies: [],
                 lasers: [],
                 powerups: [],
-                stars: []
+                stars: [],
+                difficulty: '{difficulty}',
+                theme: '{theme}'
             }};
             
             // Clear all game elements
@@ -404,13 +530,13 @@ class MultiTemplateGameGenerator:
                 if (enemy.parentNode) {{
                     enemy.parentNode.removeChild(enemy);
                 }}
-            }}, 3000);
+            }}, {enemy_speed.replace('s', '000')});
             
             setTimeout(() => {{
                 if (gameState.isPlaying) {{
                     spawnEnemies();
                 }}
-            }}, 1000 + Math.random() * 2000);
+            }}, {enemy_spawn_rate});
         }}
 
         function spawnPowerups() {{
@@ -550,19 +676,41 @@ class MultiTemplateGameGenerator:
 </body>
 </html>'''
     
-    def get_enhanced_platformer_template(self, description):
-        """Generate enhanced platformer game"""
+    def generate_custom_platformer(self, customizations, description):
+        """Generate customized platformer with AI-driven variations"""
+        
+        theme = customizations.get('theme', 'forest')
+        primary_color = customizations.get('primary_color', '#FFD700')
+        difficulty = customizations.get('difficulty', 'medium')
+        
+        # Customize based on theme
+        if theme == 'castle':
+            title = "🏰 Castle Adventure"
+            background = "linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #CD853F 100%)"
+        elif theme == 'underground':
+            title = "⛏️ Underground Explorer"
+            background = "linear-gradient(135deg, #2F4F4F 0%, #696969 50%, #808080 100%)"
+        elif theme == 'sky':
+            title = "☁️ Sky Kingdom"
+            background = "linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%)"
+        else:
+            title = "🌲 Forest Adventure"
+            background = "linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%)"
+        
+        # Generate unique game title
+        game_title = self.generate_unique_title(description, "Platformer")
+        
         return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Platformer</title>
+    <title>{game_title}</title>
     <style>
         body {{
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%);
+            background: {background};
             font-family: 'Arial', sans-serif;
             overflow: hidden;
             color: #333;
@@ -582,15 +730,15 @@ class MultiTemplateGameGenerator:
             align-items: center;
             padding: 15px 30px;
             background: rgba(0, 0, 0, 0.8);
-            border-bottom: 2px solid #FFD700;
+            border-bottom: 2px solid {primary_color};
             color: white;
         }}
         
         .game-title {{
             font-size: 24px;
             font-weight: bold;
-            color: #FFD700;
-            text-shadow: 0 0 10px #FFD700;
+            color: {primary_color};
+            text-shadow: 0 0 10px {primary_color};
         }}
         
         .game-stats {{
@@ -613,7 +761,7 @@ class MultiTemplateGameGenerator:
         .game-canvas {{
             flex: 1;
             position: relative;
-            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 70%, #8FBC8F 100%);
+            background: {background};
             overflow: hidden;
         }}
         
@@ -623,10 +771,10 @@ class MultiTemplateGameGenerator:
             left: 100px;
             width: 40px;
             height: 40px;
-            background: linear-gradient(45deg, #FF6347, #FF7F50);
+            background: linear-gradient(45deg, {primary_color}, {primary_color}aa);
             border-radius: 8px;
             border: 2px solid #fff;
-            box-shadow: 0 0 15px #FF6347;
+            box-shadow: 0 0 15px {primary_color};
             transition: all 0.1s ease;
         }}
         
@@ -642,10 +790,10 @@ class MultiTemplateGameGenerator:
             position: absolute;
             width: 20px;
             height: 20px;
-            background: linear-gradient(45deg, #FFD700, #FFA500);
+            background: linear-gradient(45deg, {primary_color}, {primary_color}aa);
             border-radius: 50%;
             border: 2px solid #fff;
-            box-shadow: 0 0 10px #FFD700;
+            box-shadow: 0 0 10px {primary_color};
             animation: coinSpin 2s linear infinite;
         }}
         
@@ -680,8 +828,8 @@ class MultiTemplateGameGenerator:
         .control-btn {{
             padding: 12px 24px;
             background: rgba(255, 215, 0, 0.2);
-            border: 2px solid #FFD700;
-            color: #FFD700;
+            border: 2px solid {primary_color};
+            color: {primary_color};
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
@@ -690,7 +838,7 @@ class MultiTemplateGameGenerator:
         
         .control-btn:hover {{
             background: rgba(255, 215, 0, 0.4);
-            box-shadow: 0 0 20px #FFD700;
+            box-shadow: 0 0 20px {primary_color};
         }}
         
         @keyframes coinSpin {{
@@ -737,7 +885,7 @@ class MultiTemplateGameGenerator:
 <body>
     <div class="game-container">
         <div class="game-header">
-            <div class="game-title">🏃 Ultimate Platformer</div>
+            <div class="game-title">{title}</div>
             <div class="game-stats">
                 <div class="stat">
                     <span>Score:</span>
@@ -786,7 +934,7 @@ class MultiTemplateGameGenerator:
     </div>
 
     <script>
-        // Game state
+        // Game state with customizations
         let gameState = {{
             score: 0,
             level: 1,
@@ -795,7 +943,9 @@ class MultiTemplateGameGenerator:
             isPaused: false,
             player: {{ x: 100, y: 120, velocityY: 0, onGround: false }},
             gravity: 0.8,
-            jumpPower: -15
+            jumpPower: -15,
+            theme: '{theme}',
+            difficulty: '{difficulty}'
         }};
 
         // Game elements
@@ -824,7 +974,9 @@ class MultiTemplateGameGenerator:
                 isPaused: false,
                 player: {{ x: 100, y: 120, velocityY: 0, onGround: false }},
                 gravity: 0.8,
-                jumpPower: -15
+                jumpPower: -15,
+                theme: '{theme}',
+                difficulty: '{difficulty}'
             }};
             
             player.style.left = '100px';
@@ -954,19 +1106,41 @@ class MultiTemplateGameGenerator:
 </body>
 </html>'''
     
-    def get_enhanced_puzzle_template(self, description):
-        """Generate enhanced puzzle game"""
+    def generate_custom_puzzle(self, customizations, description):
+        """Generate customized puzzle game with AI-driven variations"""
+        
+        theme = customizations.get('theme', 'classic')
+        primary_color = customizations.get('primary_color', '#9b59b6')
+        difficulty = customizations.get('difficulty', 'medium')
+        
+        # Customize based on theme
+        if theme == 'neon':
+            title = "💫 Neon Puzzle"
+            background = "linear-gradient(135deg, #000000 0%, #1a1a2e 50%, #16213e 100%)"
+        elif theme == 'crystal':
+            title = "💎 Crystal Blocks"
+            background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        elif theme == 'digital':
+            title = "🔲 Digital Matrix"
+            background = "linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)"
+        else:
+            title = "🧩 Classic Puzzle"
+            background = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+        
+        # Generate unique game title
+        game_title = self.generate_unique_title(description, "Puzzle")
+        
         return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Puzzle Game</title>
+    <title>{game_title}</title>
     <style>
         body {{
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: {background};
             font-family: 'Arial', sans-serif;
             overflow: hidden;
             color: white;
@@ -986,14 +1160,14 @@ class MultiTemplateGameGenerator:
             align-items: center;
             padding: 15px 30px;
             background: rgba(0, 0, 0, 0.8);
-            border-bottom: 2px solid #9b59b6;
+            border-bottom: 2px solid {primary_color};
         }}
         
         .game-title {{
             font-size: 24px;
             font-weight: bold;
-            color: #9b59b6;
-            text-shadow: 0 0 10px #9b59b6;
+            color: {primary_color};
+            text-shadow: 0 0 10px {primary_color};
         }}
         
         .game-stats {{
@@ -1031,7 +1205,7 @@ class MultiTemplateGameGenerator:
             background: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 10px;
-            border: 2px solid #9b59b6;
+            border: 2px solid {primary_color};
         }}
         
         .grid-cell {{
@@ -1043,9 +1217,9 @@ class MultiTemplateGameGenerator:
         }}
         
         .grid-cell.filled {{
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            background: linear-gradient(45deg, {primary_color}, {primary_color}aa);
             border: 1px solid #fff;
-            box-shadow: 0 0 5px #e74c3c;
+            box-shadow: 0 0 5px {primary_color};
         }}
         
         .falling-piece {{
@@ -1066,12 +1240,12 @@ class MultiTemplateGameGenerator:
             background: rgba(0, 0, 0, 0.7);
             padding: 20px;
             border-radius: 10px;
-            border: 2px solid #9b59b6;
+            border: 2px solid {primary_color};
         }}
         
         .next-piece h3 {{
             margin: 0 0 10px 0;
-            color: #9b59b6;
+            color: {primary_color};
             text-align: center;
         }}
         
@@ -1107,8 +1281,8 @@ class MultiTemplateGameGenerator:
         .control-btn {{
             padding: 12px 24px;
             background: rgba(155, 89, 182, 0.2);
-            border: 2px solid #9b59b6;
-            color: #9b59b6;
+            border: 2px solid {primary_color};
+            color: {primary_color};
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
@@ -1117,7 +1291,7 @@ class MultiTemplateGameGenerator:
         
         .control-btn:hover {{
             background: rgba(155, 89, 182, 0.4);
-            box-shadow: 0 0 20px #9b59b6;
+            box-shadow: 0 0 20px {primary_color};
         }}
         
         @keyframes pieceFall {{
@@ -1159,7 +1333,7 @@ class MultiTemplateGameGenerator:
 <body>
     <div class="game-container">
         <div class="game-header">
-            <div class="game-title">🧩 Ultimate Puzzle Game</div>
+            <div class="game-title">{title}</div>
             <div class="game-stats">
                 <div class="stat">
                     <span>Score:</span>
@@ -1193,7 +1367,7 @@ class MultiTemplateGameGenerator:
     </div>
 
     <script>
-        // Game state
+        // Game state with customizations
         let gameState = {{
             score: 0,
             level: 1,
@@ -1204,7 +1378,9 @@ class MultiTemplateGameGenerator:
             currentPiece: null,
             nextPiece: null,
             dropTimer: 0,
-            dropInterval: 1000
+            dropInterval: 1000,
+            theme: '{theme}',
+            difficulty: '{difficulty}'
         }};
 
         // Game elements
@@ -1296,7 +1472,9 @@ class MultiTemplateGameGenerator:
                 currentPiece: null,
                 nextPiece: null,
                 dropTimer: 0,
-                dropInterval: 1000
+                dropInterval: 1000,
+                theme: '{theme}',
+                difficulty: '{difficulty}'
             }};
             
             initGame();
@@ -1597,19 +1775,41 @@ class MultiTemplateGameGenerator:
 </body>
 </html>'''
     
-    def get_enhanced_racing_template(self, description):
-        """Generate enhanced racing game"""
+    def generate_custom_racing(self, customizations, description):
+        """Generate customized racing game with AI-driven variations"""
+        
+        theme = customizations.get('theme', 'city')
+        primary_color = customizations.get('primary_color', '#e74c3c')
+        difficulty = customizations.get('difficulty', 'medium')
+        
+        # Customize based on theme
+        if theme == 'desert':
+            title = "🏜️ Desert Rally"
+            background = "linear-gradient(to bottom, #FFD700 0%, #DEB887 30%, #D2691E 100%)"
+        elif theme == 'mountain':
+            title = "🏔️ Mountain Circuit"
+            background = "linear-gradient(to bottom, #87CEEB 0%, #228B22 30%, #696969 100%)"
+        elif theme == 'highway':
+            title = "🛣️ Highway Speed"
+            background = "linear-gradient(to bottom, #87CEEB 0%, #32CD32 30%, #696969 100%)"
+        else:
+            title = "🏙️ City Racing"
+            background = "linear-gradient(to bottom, #87CEEB 0%, #228B22 30%, #696969 100%)"
+        
+        # Generate unique game title
+        game_title = self.generate_unique_title(description, "Racing")
+        
         return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Racing Game</title>
+    <title>{game_title}</title>
     <style>
         body {{
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            background: {background};
             font-family: 'Arial', sans-serif;
             overflow: hidden;
             color: white;
@@ -1629,14 +1829,14 @@ class MultiTemplateGameGenerator:
             align-items: center;
             padding: 15px 30px;
             background: rgba(0, 0, 0, 0.8);
-            border-bottom: 2px solid #e74c3c;
+            border-bottom: 2px solid {primary_color};
         }}
         
         .game-title {{
             font-size: 24px;
             font-weight: bold;
-            color: #e74c3c;
-            text-shadow: 0 0 10px #e74c3c;
+            color: {primary_color};
+            text-shadow: 0 0 10px {primary_color};
         }}
         
         .game-stats {{
@@ -1659,7 +1859,7 @@ class MultiTemplateGameGenerator:
         .game-canvas {{
             flex: 1;
             position: relative;
-            background: linear-gradient(to bottom, #87CEEB 0%, #228B22 30%, #696969 100%);
+            background: {background};
             overflow: hidden;
         }}
         
@@ -1692,10 +1892,10 @@ class MultiTemplateGameGenerator:
             transform: translateX(-50%);
             width: 40px;
             height: 60px;
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            background: linear-gradient(45deg, {primary_color}, {primary_color}aa);
             border-radius: 8px 8px 4px 4px;
             border: 2px solid #fff;
-            box-shadow: 0 0 15px #e74c3c;
+            box-shadow: 0 0 15px {primary_color};
             transition: all 0.1s ease;
         }}
         
@@ -1759,10 +1959,10 @@ class MultiTemplateGameGenerator:
             position: absolute;
             width: 30px;
             height: 15px;
-            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            background: linear-gradient(45deg, {primary_color}, {primary_color}aa);
             border-radius: 15px;
             border: 2px solid #fff;
-            box-shadow: 0 0 10px #9b59b6;
+            box-shadow: 0 0 10px {primary_color};
             animation: boostMove 2.5s linear infinite, boostPulse 0.5s ease-in-out infinite alternate;
         }}
         
@@ -1779,8 +1979,8 @@ class MultiTemplateGameGenerator:
         .control-btn {{
             padding: 12px 24px;
             background: rgba(231, 76, 60, 0.2);
-            border: 2px solid #e74c3c;
-            color: #e74c3c;
+            border: 2px solid {primary_color};
+            color: {primary_color};
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
@@ -1789,7 +1989,7 @@ class MultiTemplateGameGenerator:
         
         .control-btn:hover {{
             background: rgba(231, 76, 60, 0.4);
-            box-shadow: 0 0 20px #e74c3c;
+            box-shadow: 0 0 20px {primary_color};
         }}
         
         @keyframes roadMove {{
@@ -1860,7 +2060,7 @@ class MultiTemplateGameGenerator:
 <body>
     <div class="game-container">
         <div class="game-header">
-            <div class="game-title">🏎️ Ultimate Racing Game</div>
+            <div class="game-title">{title}</div>
             <div class="game-stats">
                 <div class="stat">
                     <span>Score:</span>
@@ -1892,7 +2092,7 @@ class MultiTemplateGameGenerator:
     </div>
 
     <script>
-        // Game state
+        // Game state with customizations
         let gameState = {{
             score: 0,
             speed: 0,
@@ -1903,7 +2103,9 @@ class MultiTemplateGameGenerator:
             enemies: [],
             obstacles: [],
             pickups: [],
-            roadLines: []
+            roadLines: [],
+            theme: '{theme}',
+            difficulty: '{difficulty}'
         }};
 
         // Game elements
@@ -1971,7 +2173,9 @@ class MultiTemplateGameGenerator:
                 enemies: [],
                 obstacles: [],
                 pickups: [],
-                roadLines: []
+                roadLines: [],
+                theme: '{theme}',
+                difficulty: '{difficulty}'
             }};
             
             // Clear all game elements
@@ -2178,69 +2382,28 @@ class MultiTemplateGameGenerator:
 </body>
 </html>'''
     
-    def load_and_customize_template(self, template_id, template_info, description):
-        """Load and customize the appropriate template based on template_id"""
-        if template_id == 'space_shooter':
-            return self.get_enhanced_space_shooter_template(description)
-        elif template_id == 'platformer':
-            return self.get_enhanced_platformer_template(description)
-        elif template_id == 'puzzle':
-            return self.get_enhanced_puzzle_template(description)
-        elif template_id == 'racing':
-            return self.get_enhanced_racing_template(description)
-        else:
-            # Default fallback to space shooter
-            return self.get_enhanced_space_shooter_template(description)
-    
-    def generate_game(self, description, enhanced=True):
-        """Generate a game based on the description"""
-        if not enhanced:
-            # Basic generation (fallback)
-            return {
-                'success': True,
-                'game_html': f'<h1>Basic Game</h1><p>Game description: {description}</p>',
-                'metadata': {
-                    'template': 'basic',
-                    'features': 2,
-                    'quality': 'Basic'
-                }
-            }
+    def generate_unique_title(self, description, game_type):
+        """Generate a unique game title based on the description"""
+        # Extract key words from description
+        words = re.findall(r'\b\w+\b', description.lower())
         
-        try:
-            # Analyze prompt to determine best template
-            template_id, template_info = self.analyze_prompt(description)
-            
-            # Generate the game HTML
-            game_html = self.load_and_customize_template(template_id, template_info, description)
-            
-            # Create metadata
-            metadata = {
-                'template': template_id.title(),
-                'features': len(template_info['features']),
-                'quality': 'Professional',
-                'template_info': template_info
-            }
-            
-            return {
-                'success': True,
-                'game_html': game_html,
-                'metadata': metadata
-            }
-            
-        except Exception as e:
-            return {
-                'success': False,
-                'error': str(e),
-                'game_html': '<h1>Error</h1><p>Failed to generate game</p>',
-                'metadata': {
-                    'template': 'error',
-                    'features': 0,
-                    'quality': 'Failed'
-                }
-            }
+        # Filter out common words
+        common_words = {'a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'create', 'make', 'game'}
+        key_words = [word for word in words if word not in common_words and len(word) > 2]
+        
+        # Take first 2-3 meaningful words
+        if len(key_words) >= 2:
+            title_words = key_words[:2]
+            title = ' '.join(word.capitalize() for word in title_words) + f' {game_type}'
+        elif len(key_words) == 1:
+            title = key_words[0].capitalize() + f' {game_type}'
+        else:
+            title = f'Epic {game_type}'
+        
+        return title
 
-# Initialize the generator
-generator = MultiTemplateGameGenerator()
+# Initialize the AI customizer
+ai_customizer = AIGameCustomizer()
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -2259,25 +2422,41 @@ def generate_game():
         if not prompt:
             return jsonify({'error': 'No prompt provided'}), 400
         
-        # Generate the game
-        result = generator.generate_game(prompt, enhanced)
-        
-        if result['success']:
+        if not enhanced:
+            # Basic generation (fallback)
             return jsonify({
-                'game_html': result['game_html'],
-                'metadata': result['metadata']
+                'game_html': f'<h1>Basic Game</h1><p>Game description: {prompt}</p>',
+                'metadata': {
+                    'template': 'basic',
+                    'features': 2,
+                    'quality': 'Basic'
+                }
             })
-        else:
-            return jsonify({
-                'error': result['error'],
-                'game_html': result['game_html'],
-                'metadata': result['metadata']
-            }), 500
-            
+        
+        # AI-powered enhanced generation
+        template_id, template_info = ai_customizer.analyze_prompt(prompt)
+        customizations = ai_customizer.extract_customizations(prompt, template_info)
+        game_html = ai_customizer.customize_template(template_id, template_info, customizations, prompt)
+        
+        # Create metadata
+        metadata = {
+            'template': template_id.replace('_', ' ').title(),
+            'features': len(template_info.get('keywords', [])),
+            'quality': 'Professional',
+            'theme': customizations.get('theme', 'default'),
+            'difficulty': customizations.get('difficulty', 'medium'),
+            'customizations': customizations
+        }
+        
+        return jsonify({
+            'game_html': game_html,
+            'metadata': metadata
+        })
+        
     except Exception as e:
         return jsonify({
             'error': str(e),
-            'game_html': '<h1>Error</h1><p>Internal server error</p>',
+            'game_html': '<h1>Error</h1><p>Failed to generate game</p>',
             'metadata': {
                 'template': 'error',
                 'features': 0,
@@ -2286,4 +2465,6 @@ def generate_game():
         }), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Get port from environment variable (Railway provides this)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
