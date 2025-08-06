@@ -619,4 +619,3 @@ if __name__ == "__main__":
             print(f"🎨 Customized for: {customized['customizable_elements']['content']['game_title']}")
         else:
             print("❌ No matching template found")
-
