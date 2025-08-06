@@ -441,18 +441,6 @@ class EnhancedGameGenerator:
             });
         }
 
-        function updateBullets() {
-            gameState.bullets.forEach((bullet, index) => {
-                bullet.y += 5;
-                bullet.element.style.bottom = bullet.y + 'px';
-                
-                if (bullet.y > window.innerHeight) {
-                    bullet.element.remove();
-                    gameState.bullets.splice(index, 1);
-                }
-            });
-        }
-
         function spawnObjects(deltaTime) {
             gameState.spawnTimer += deltaTime;
             
@@ -515,6 +503,18 @@ class EnhancedGameGenerator:
                 if (powerup.y > window.innerHeight) {
                     powerup.element.remove();
                     gameState.powerups.splice(index, 1);
+                }
+            });
+        }
+
+        function updateBullets() {
+            gameState.bullets.forEach((bullet, index) => {
+                bullet.y += 5;
+                bullet.element.style.bottom = bullet.y + 'px';
+                
+                if (bullet.y > window.innerHeight) {
+                    bullet.element.remove();
+                    gameState.bullets.splice(index, 1);
                 }
             });
         }
@@ -630,8 +630,29 @@ class EnhancedGameGenerator:
 enhanced_generator = EnhancedGameGenerator()
 
 # ============================================================================
-# EXISTING ROUTES (PRESERVED EXACTLY AS IS)
+# FLASK ROUTES
 # ============================================================================
+
+@app.route('/')
+def index():
+    """Root endpoint - FIXES THE 404 ISSUE"""
+    return jsonify({
+        'message': 'Mythiq Game Maker API is running!',
+        'status': 'healthy',
+        'service': 'Enhanced Game Maker with FREE AI',
+        'version': '2.0.0',
+        'free_ai_available': FREE_AI_AVAILABLE,
+        'endpoints': {
+            'health': '/health',
+            'generate_game': '/generate-game',
+            'ai_generate_game': '/ai-generate-game',
+            'generation_stats': '/generation-stats',
+            'ai_status': '/ai-status',
+            'ai_preview_concept': '/ai-preview-concept'
+        },
+        'timestamp': datetime.now().isoformat(),
+        'stats': stats
+    })
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -707,10 +728,6 @@ def generate_game():
                 'cost': '$0.00'
             }
         }), 500
-
-# ============================================================================
-# NEW FREE AI ROUTES (ADDED FUNCTIONALITY)
-# ============================================================================
 
 @app.route('/ai-generate-game', methods=['POST'])
 def ai_generate_game():
