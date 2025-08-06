@@ -626,4 +626,3 @@ print(f"  {len(CustomizationEngine().color_schemes)} theme color schemes")
 print(f"  {len(CustomizationEngine().character_styles)} character styles")
 print(f"  {len(CustomizationEngine().difficulty_settings)} difficulty levels")
 print("✅ Ready to customize base games with AI intelligence!")
-
