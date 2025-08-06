@@ -408,4 +408,3 @@ print("4. Speed Circuit - Racing game (similar structure)")
 print("5. Space Defense - Shooter game (similar structure)")
 print("\n🤖 AI will intelligently customize these games based on user prompts!")
 print("✅ All games are fully playable and Railway-ready!")
-
