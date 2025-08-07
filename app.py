@@ -1,11 +1,9 @@
 """
-🔥 MINIMAL WORKING BACKEND - NO EXTERNAL DEPENDENCIES
-Self-contained Flask app that generates actual playable HTML5 games
-GUARANTEED TO START - No import errors or missing files
-RAILWAY PORT FIX APPLIED - Uses dynamic PORT environment variable
+Clean Working Backend - Railway Compatible
+No syntax errors, proper port configuration
 """
 
-from flask import Flask, request, jsonify, send_file, render_template_string
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import os
 import json
@@ -13,7 +11,7 @@ import uuid
 import zipfile
 import tempfile
 import shutil
-from datetime import import datetime
+from datetime import datetime
 from typing import Dict, List, Any
 import traceback
 import random
@@ -226,29 +224,29 @@ class SimpleGameGenerator:
         difficulty = variation['difficulty']
         features = ", ".join(variation['features'])
         
-        return f'''<!DOCTYPE html>
+        html_content = '''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
+    <title>''' + title + '''</title>
     <style>
-        body {{
+        body {
             margin: 0;
             padding: 20px;
             font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #8B4513, #228B22);
             color: white;
             text-align: center;
-        }}
-        .game-container {{
+        }
+        .game-container {
             max-width: 800px;
             margin: 0 auto;
             background: rgba(0,0,0,0.8);
             border-radius: 15px;
             padding: 20px;
-        }}
-        .dartboard {{
+        }
+        .dartboard {
             width: 300px;
             height: 300px;
             border-radius: 50%;
@@ -257,8 +255,8 @@ class SimpleGameGenerator:
             position: relative;
             cursor: crosshair;
             border: 5px solid #333;
-        }}
-        .bullseye {{
+        }
+        .bullseye {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -268,14 +266,14 @@ class SimpleGameGenerator:
             background: #FFD700;
             border-radius: 50%;
             border: 2px solid #000;
-        }}
-        .score-board {{
+        }
+        .score-board {
             display: flex;
             justify-content: space-around;
             margin: 20px 0;
             font-size: 18px;
-        }}
-        .dart-indicator {{
+        }
+        .dart-indicator {
             position: absolute;
             width: 10px;
             height: 10px;
@@ -283,13 +281,13 @@ class SimpleGameGenerator:
             border-radius: 50%;
             transform: translate(-50%, -50%);
             animation: dartHit 0.5s ease-out;
-        }}
-        @keyframes dartHit {{
-            0% {{ transform: translate(-50%, -50%) scale(0); }}
-            50% {{ transform: translate(-50%, -50%) scale(1.5); }}
-            100% {{ transform: translate(-50%, -50%) scale(1); }}
-        }}
-        button {{
+        }
+        @keyframes dartHit {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.5); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        button {
             background: #FFD700;
             color: #000;
             border: none;
@@ -298,22 +296,22 @@ class SimpleGameGenerator:
             cursor: pointer;
             font-size: 16px;
             margin: 5px;
-        }}
-        button:hover {{
+        }
+        button:hover {
             background: #FFA500;
-        }}
-        .game-info {{
+        }
+        .game-info {
             background: rgba(255,255,255,0.1);
             padding: 15px;
             border-radius: 10px;
             margin: 20px 0;
-        }}
+        }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>{title}</h1>
-        <p>Character: {character} | Theme: {theme} | Difficulty: {difficulty}</p>
+        <h1>''' + title + '''</h1>
+        <p>Character: ''' + character + ''' | Theme: ''' + theme + ''' | Difficulty: ''' + difficulty + '''</p>
         
         <div class="score-board">
             <div>Score: <span id="score">0</span></div>
@@ -332,7 +330,7 @@ class SimpleGameGenerator:
         
         <div class="game-info">
             <h3>Features:</h3>
-            <p>{features}</p>
+            <p>''' + features + '''</p>
             <p>Click on the dartboard to throw darts! Hit the center for maximum points!</p>
         </div>
     </div>
@@ -343,7 +341,7 @@ class SimpleGameGenerator:
         let round = 1;
         let gameActive = true;
 
-        function throwDart(event) {{
+        function throwDart(event) {
             if (!gameActive || dartsLeft <= 0) return;
             
             const dartboard = document.getElementById('dartboard');
@@ -356,17 +354,17 @@ class SimpleGameGenerator:
             const distance = Math.sqrt(Math.pow(clickX - centerX, 2) + Math.pow(clickY - centerY, 2));
             
             let points = 0;
-            if (distance <= 15) {{
+            if (distance <= 15) {
                 points = 50;
-            }} else if (distance <= 30) {{
+            } else if (distance <= 30) {
                 points = 25;
-            }} else if (distance <= 60) {{
+            } else if (distance <= 60) {
                 points = 15;
-            }} else if (distance <= 90) {{
+            } else if (distance <= 90) {
                 points = 10;
-            }} else if (distance <= 120) {{
+            } else if (distance <= 120) {
                 points = 5;
-            }}
+            }
             
             const dartIndicator = document.createElement('div');
             dartIndicator.className = 'dart-indicator';
@@ -378,20 +376,20 @@ class SimpleGameGenerator:
             dartsLeft--;
             updateDisplay();
             
-            if (dartsLeft <= 0) {{
-                setTimeout(() => {{
+            if (dartsLeft <= 0) {
+                setTimeout(() => {
                     nextRound();
-                }}, 1000);
-            }}
-        }}
+                }, 1000);
+            }
+        }
 
-        function updateDisplay() {{
+        function updateDisplay() {
             document.getElementById('score').textContent = score;
             document.getElementById('darts').textContent = dartsLeft;
             document.getElementById('round').textContent = round;
-        }}
+        }
 
-        function nextRound() {{
+        function nextRound() {
             const indicators = document.querySelectorAll('.dart-indicator');
             indicators.forEach(indicator => indicator.remove());
             
@@ -399,17 +397,17 @@ class SimpleGameGenerator:
             round++;
             updateDisplay();
             
-            if (round > 5) {{
+            if (round > 5) {
                 endGame();
-            }}
-        }}
+            }
+        }
 
-        function endGame() {{
+        function endGame() {
             gameActive = false;
             alert('Game Over! Final Score: ' + score + ' points in ' + (round-1) + ' rounds!');
-        }}
+        }
 
-        function newGame() {{
+        function newGame() {
             score = 0;
             dartsLeft = 3;
             round = 1;
@@ -419,155 +417,161 @@ class SimpleGameGenerator:
             indicators.forEach(indicator => indicator.remove());
             
             updateDisplay();
-        }}
+        }
 
-        function resetRound() {{
+        function resetRound() {
             const indicators = document.querySelectorAll('.dart-indicator');
             indicators.forEach(indicator => indicator.remove());
             
             dartsLeft = 3;
             updateDisplay();
-        }}
+        }
 
         updateDisplay();
     </script>
 </body>
 </html>'''
+        return html_content
 
     def _create_basketball_game(self, variation: Dict) -> str:
         """Create basketball game"""
         title = variation['title']
-        return f'''<!DOCTYPE html>
-<html><head><title>{title}</title>
+        html_content = '''<!DOCTYPE html>
+<html><head><title>''' + title + '''</title>
 <style>
-body {{ background: linear-gradient(135deg, #FF8C00, #FF4500); color: white; text-align: center; font-family: Arial; }}
-.court {{ width: 400px; height: 300px; background: #8B4513; margin: 20px auto; position: relative; border: 3px solid #FFF; }}
-.hoop {{ position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 80px; height: 20px; background: #FF4500; border: 3px solid #000; cursor: pointer; }}
-button {{ background: #FF8C00; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }}
+body { background: linear-gradient(135deg, #FF8C00, #FF4500); color: white; text-align: center; font-family: Arial; }
+.court { width: 400px; height: 300px; background: #8B4513; margin: 20px auto; position: relative; border: 3px solid #FFF; }
+.hoop { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 80px; height: 20px; background: #FF4500; border: 3px solid #000; cursor: pointer; }
+button { background: #FF8C00; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
 </style></head>
 <body>
-<h1>{title}</h1>
+<h1>''' + title + '''</h1>
 <div>Score: <span id="score">0</span> | Shots: <span id="shots">0</span></div>
 <div class="court"><div class="hoop" onclick="shoot()"></div></div>
 <button onclick="newGame()">New Game</button>
 <script>
 let score = 0, shots = 0;
-function shoot() {{ 
+function shoot() { 
     shots++; 
-    if (Math.random() < 0.7) {{ score += 2; alert('SCORE!'); }} else {{ alert('MISS!'); }}
+    if (Math.random() < 0.7) { score += 2; alert('SCORE!'); } else { alert('MISS!'); }
     document.getElementById('score').textContent = score;
     document.getElementById('shots').textContent = shots;
-}}
-function newGame() {{ score = 0; shots = 0; shoot(); }}
+}
+function newGame() { score = 0; shots = 0; shoot(); }
 </script></body></html>'''
+        return html_content
 
     def _create_underwater_game(self, variation: Dict) -> str:
         """Create underwater game"""
         title = variation['title']
-        return f'''<!DOCTYPE html>
-<html><head><title>{title}</title>
+        html_content = '''<!DOCTYPE html>
+<html><head><title>''' + title + '''</title>
 <style>
-body {{ background: linear-gradient(180deg, #006994, #4682B4, #00CED1); color: white; text-align: center; font-family: Arial; }}
-.ocean {{ width: 600px; height: 400px; background: linear-gradient(180deg, #87CEEB, #4682B4, #191970); margin: 20px auto; position: relative; cursor: pointer; }}
-.player {{ position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: #FFD700; border-radius: 50%; }}
-button {{ background: #00CED1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }}
+body { background: linear-gradient(180deg, #006994, #4682B4, #00CED1); color: white; text-align: center; font-family: Arial; }
+.ocean { width: 600px; height: 400px; background: linear-gradient(180deg, #87CEEB, #4682B4, #191970); margin: 20px auto; position: relative; cursor: pointer; }
+.player { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: #FFD700; border-radius: 50%; }
+button { background: #00CED1; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
 </style></head>
 <body>
-<h1>{title}</h1>
+<h1>''' + title + '''</h1>
 <div>Treasures: <span id="treasures">0</span> | Depth: <span id="depth">0</span>m</div>
 <div class="ocean" onclick="dive(event)"><div class="player" id="player"></div></div>
 <button onclick="newGame()">New Game</button>
 <script>
 let treasures = 0, depth = 0;
-function dive(event) {{ 
+function dive(event) { 
     depth += 10; 
-    if (Math.random() < 0.3) {{ treasures++; alert('Treasure found!'); }}
+    if (Math.random() < 0.3) { treasures++; alert('Treasure found!'); }
     document.getElementById('treasures').textContent = treasures;
     document.getElementById('depth').textContent = depth;
-}}
-function newGame() {{ treasures = 0; depth = 0; dive(); }}
+}
+function newGame() { treasures = 0; depth = 0; dive(); }
 </script></body></html>'''
+        return html_content
 
     def _create_medieval_game(self, variation: Dict) -> str:
         """Create medieval game"""
         title = variation['title']
-        return f'''<!DOCTYPE html>
-<html><head><title>{title}</title>
+        html_content = '''<!DOCTYPE html>
+<html><head><title>''' + title + '''</title>
 <style>
-body {{ background: linear-gradient(135deg, #2F2F2F, #8B0000); color: #FFD700; text-align: center; font-family: serif; }}
-.castle {{ width: 500px; height: 300px; background: linear-gradient(180deg, #696969, #2F2F2F); margin: 20px auto; position: relative; }}
-.knight {{ position: absolute; bottom: 20px; left: 50px; width: 40px; height: 60px; background: #C0C0C0; cursor: pointer; }}
-button {{ background: #8B0000; color: #FFD700; border: 2px solid #FFD700; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }}
+body { background: linear-gradient(135deg, #2F2F2F, #8B0000); color: #FFD700; text-align: center; font-family: serif; }
+.castle { width: 500px; height: 300px; background: linear-gradient(180deg, #696969, #2F2F2F); margin: 20px auto; position: relative; }
+.knight { position: absolute; bottom: 20px; left: 50px; width: 40px; height: 60px; background: #C0C0C0; cursor: pointer; }
+button { background: #8B0000; color: #FFD700; border: 2px solid #FFD700; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
 </style></head>
 <body>
-<h1>{title}</h1>
+<h1>''' + title + '''</h1>
 <div>Gold: <span id="gold">0</span> | Honor: <span id="honor">100</span></div>
 <div class="castle"><div class="knight" onclick="quest()"></div></div>
 <button onclick="newGame()">New Quest</button>
 <script>
 let gold = 0, honor = 100;
-function quest() {{ 
+function quest() { 
     gold += Math.floor(Math.random() * 50) + 25; 
     honor += 5;
     alert('Quest completed! Gold earned!');
     document.getElementById('gold').textContent = gold;
     document.getElementById('honor').textContent = honor;
-}}
-function newGame() {{ gold = 0; honor = 100; quest(); }}
+}
+function newGame() { gold = 0; honor = 100; quest(); }
 </script></body></html>'''
+        return html_content
 
     def _create_space_game(self, variation: Dict) -> str:
         """Create space game"""
         title = variation['title']
-        return f'''<!DOCTYPE html>
-<html><head><title>{title}</title>
+        html_content = '''<!DOCTYPE html>
+<html><head><title>''' + title + '''</title>
 <style>
-body {{ background: linear-gradient(180deg, #000, #191970, #4B0082); color: #00FFFF; text-align: center; font-family: monospace; }}
-.space {{ width: 600px; height: 400px; background: radial-gradient(circle, #191970, #000); margin: 20px auto; position: relative; cursor: crosshair; }}
-.spaceship {{ position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: #00FFFF; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }}
-button {{ background: #191970; color: #00FFFF; border: 2px solid #00FFFF; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }}
+body { background: linear-gradient(180deg, #000, #191970, #4B0082); color: #00FFFF; text-align: center; font-family: monospace; }
+.space { width: 600px; height: 400px; background: radial-gradient(circle, #191970, #000); margin: 20px auto; position: relative; cursor: crosshair; }
+.spaceship { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: #00FFFF; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+button { background: #191970; color: #00FFFF; border: 2px solid #00FFFF; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
 </style></head>
 <body>
-<h1>{title}</h1>
+<h1>''' + title + '''</h1>
 <div>Score: <span id="score">0</span> | Aliens: <span id="aliens">0</span></div>
 <div class="space" onclick="fireLaser()"><div class="spaceship"></div></div>
 <button onclick="newGame()">New Mission</button>
 <script>
 let score = 0, aliens = 0;
-function fireLaser() {{ 
-    if (Math.random() < 0.6) {{ score += 10; aliens++; alert('Alien destroyed!'); }} else {{ alert('Missed!'); }}
+function fireLaser() { 
+    if (Math.random() < 0.6) { score += 10; aliens++; alert('Alien destroyed!'); } else { alert('Missed!'); }
     document.getElementById('score').textContent = score;
     document.getElementById('aliens').textContent = aliens;
-}}
-function newGame() {{ score = 0; aliens = 0; fireLaser(); }}
+}
+function newGame() { score = 0; aliens = 0; fireLaser(); }
 </script></body></html>'''
+        return html_content
 
     def _create_racing_game(self, variation: Dict) -> str:
         """Create racing game"""
         title = variation['title']
-        return f'''<!DOCTYPE html>
-<html><head><title>{title}</title>
+        html_content = '''<!DOCTYPE html>
+<html><head><title>''' + title + '''</title>
 <style>
-body {{ background: linear-gradient(135deg, #FF1493, #00FFFF); color: white; text-align: center; font-family: Arial; }}
-.track {{ width: 600px; height: 400px; background: linear-gradient(180deg, #333, #666, #333); margin: 20px auto; position: relative; }}
-.car {{ position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); width: 30px; height: 50px; background: #FF0000; cursor: pointer; }}
-button {{ background: #FF1493; color: white; border: 2px solid #FFFF00; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }}
+body { background: linear-gradient(135deg, #FF1493, #00FFFF); color: white; text-align: center; font-family: Arial; }
+.track { width: 600px; height: 400px; background: linear-gradient(180deg, #333, #666, #333); margin: 20px auto; position: relative; }
+.car { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); width: 30px; height: 50px; background: #FF0000; cursor: pointer; }
+button { background: #FF1493; color: white; border: 2px solid #FFFF00; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 5px; }
 </style></head>
 <body>
-<h1>{title}</h1>
+<h1>''' + title + '''</h1>
 <div>Speed: <span id="speed">0</span> MPH | Lap: <span id="lap">1</span></div>
 <div class="track"><div class="car" onclick="accelerate()"></div></div>
 <button onclick="newRace()">New Race</button>
 <script>
 let speed = 0, lap = 1;
-function accelerate() {{ 
+function accelerate() { 
     speed = Math.min(200, speed + 20); 
-    if (speed > 150) {{ lap++; alert('Lap completed!'); }}
+    if (speed > 150) { lap++; alert('Lap completed!'); }
     document.getElementById('speed').textContent = speed;
     document.getElementById('lap').textContent = lap;
-}}
-function newRace() {{ speed = 0; lap = 1; accelerate(); }}
+}
+function newRace() { speed = 0; lap = 1; accelerate(); }
 </script></body></html>'''
+        return html_content
 
 # Initialize game generator
 game_generator = SimpleGameGenerator()
@@ -576,10 +580,10 @@ game_generator = SimpleGameGenerator()
 def health_check():
     """Health check endpoint"""
     return jsonify({
-        'service': 'Working Game Maker - PORT FIX APPLIED',
+        'service': 'Clean Working Game Maker - Railway Compatible',
         'status': 'healthy',
-        'version': '11.0.0 - RAILWAY PORT FIXED VERSION',
-        'message': 'Working Ultimate Game Maker API - Railway Port Configuration Fixed!',
+        'version': '12.0.0 - CLEAN SYNTAX VERSION',
+        'message': 'Clean Working Ultimate Game Maker API - No Syntax Errors!',
         'timestamp': datetime.now().isoformat(),
         'port_info': {
             'railway_port': os.environ.get('PORT', 'Not set'),
@@ -601,7 +605,7 @@ def health_check():
             'iframe_support': True,
             'zip_packages': True,
             'error_handling': True,
-            'no_external_dependencies': True,
+            'no_syntax_errors': True,
             'railway_compatible': True
         },
         'stats': stats,
@@ -620,7 +624,7 @@ def health():
             'railway_port': os.environ.get('PORT', 'Not set'),
             'binding_status': 'Railway-compatible'
         },
-        'message': 'Working backend with Railway port fix applied!'
+        'message': 'Clean backend with no syntax errors running successfully!'
     })
 
 @app.route('/ultimate-generate-game', methods=['POST'])
@@ -711,7 +715,7 @@ def download_game(game_id):
             # Write README
             readme_content = f"""
 {game['title']}
-Generated by Working Ultimate Game Maker - Railway Port Fixed
+Generated by Clean Working Ultimate Game Maker
 
 Game Type: {game['type']}
 Character: {game['character']}
@@ -775,16 +779,16 @@ def generation_stats():
     })
 
 if __name__ == '__main__':
-    # 🔥 RAILWAY PORT FIX - This is the key change!
+    # Railway port configuration - this fixes the 502 error
     port = int(os.environ.get('PORT', 5000))
     
-    print("🔥 WORKING BACKEND STARTING WITH RAILWAY PORT FIX...")
+    print("🔥 CLEAN WORKING BACKEND STARTING...")
+    print("✅ No syntax errors")
     print("✅ No external dependencies")
     print("✅ Self-contained game generation")
     print("✅ All endpoints functional")
     print("✅ Railway port configuration applied")
     print(f"✅ Binding to Railway port: {port}")
     
-    # Use Railway's assigned port - this fixes the 502 error!
+    # Use Railway's assigned port
     app.run(host='0.0.0.0', port=port, debug=True)
-
